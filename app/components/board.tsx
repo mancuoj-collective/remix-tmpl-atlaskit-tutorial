@@ -3,12 +3,22 @@ import { draggable, dropTargetForElements } from '@atlaskit/pragmatic-drag-and-d
 import { type ReactElement, type ReactNode, useEffect, useRef, useState } from 'react'
 import invariant from 'tiny-invariant'
 
+type PieceType = 'king' | 'pawn'
+type Coord = [number, number]
+
+type PieceRecord = {
+  type: PieceType
+  location: Coord
+}
+
 type PieceProps = {
+  location: Coord
+  pieceType: PieceType
   image: string
   alt: string
 }
 
-function Piece({ image, alt }: PieceProps) {
+function Piece({ location, pieceType, image, alt }: PieceProps) {
   const ref = useRef(null)
   const [isDragging, setIsDragging] = useState(false)
 
@@ -18,10 +28,11 @@ function Piece({ image, alt }: PieceProps) {
 
     return draggable({
       element: el,
+      getInitialData: () => ({ location, pieceType }),
       onDragStart: () => setIsDragging(true),
       onDrop: () => setIsDragging(false),
     })
-  }, [])
+  }, [location, pieceType])
 
   return (
     <img
@@ -37,39 +48,60 @@ function Piece({ image, alt }: PieceProps) {
   )
 }
 
-function King() {
-  return <Piece image="/king.png" alt="king" />
+function King({ location }: { location: Coord }) {
+  return <Piece location={location} pieceType="king" image="/king.png" alt="king" />
 }
 
-function Pawn() {
-  return <Piece image="/pawn.png" alt="pawn" />
+function Pawn({ location }: { location: Coord }) {
+  return <Piece location={location} pieceType="pawn" image="/pawn.png" alt="pawn" />
 }
 
-type PieceType = 'king' | 'pawn'
-type Coord = [number, number]
-
-type PieceRecord = {
-  type: PieceType
-  location: Coord
-}
-
-const pieceLookup: { [Key in PieceType]: () => ReactElement } = {
-  king: () => <King />,
-  pawn: () => <Pawn />,
+const pieceLookup: { [Key in PieceType]: (location: Coord) => ReactElement } = {
+  king: (location) => <King location={location} />,
+  pawn: (location) => <Pawn location={location} />,
 }
 
 function isEqualCoord(c1: Coord, c2: Coord) {
   return c1[0] === c2[0] && c1[1] === c2[1]
 }
 
+function canMove(start: Coord, destination: Coord, pieceType: PieceType, pieces: PieceRecord[]) {
+  const rowDist = Math.abs(start[0] - destination[0])
+  const colDist = Math.abs(start[1] - destination[1])
+
+  if (pieces.find((p) => isEqualCoord(p.location, destination))) {
+    return false
+  }
+
+  switch (pieceType) {
+    case 'king':
+      return rowDist <= 1 && colDist <= 1
+    case 'pawn':
+      return colDist === 0 && start[0] - destination[0] === -1
+    default:
+      return false
+  }
+}
+
+function isCoord(value: unknown): value is Coord {
+  return Array.isArray(value) && value.length === 2 && value.every((v) => typeof v === 'number')
+}
+
+function isPieceType(value: unknown): value is PieceType {
+  return typeof value === 'string' && ['king', 'pawn'].includes(value)
+}
+
 type SquareProps = {
+  pieces: PieceRecord[]
   location: Coord
   children: ReactNode
 }
 
-function Square({ location, children }: SquareProps) {
+type HoveredStatus = 'idle' | 'validMove' | 'invalidMove'
+
+function Square({ pieces, location, children }: SquareProps) {
   const ref = useRef(null)
-  const [isDraggedOver, setIsDraggedOver] = useState(false)
+  const [status, setStatus] = useState<HoveredStatus>('idle')
   const isDark = (location[0] + location[1]) % 2 === 1
 
   useEffect(() => {
@@ -78,11 +110,27 @@ function Square({ location, children }: SquareProps) {
 
     return dropTargetForElements({
       element: el,
-      onDragEnter: () => setIsDraggedOver(true),
-      onDragLeave: () => setIsDraggedOver(false),
-      onDrop: () => setIsDraggedOver(false),
+      canDrop: ({ source }) => {
+        if (!isCoord(source.data.location)) {
+          return false
+        }
+        return !isEqualCoord(source.data.location, location)
+      },
+      onDragEnter: ({ source }) => {
+        if (!isCoord(source.data.location) || !isPieceType(source.data.pieceType)) {
+          return
+        }
+
+        if (canMove(source.data.location, location, source.data.pieceType, pieces)) {
+          setStatus('validMove')
+        } else {
+          setStatus('invalidMove')
+        }
+      },
+      onDragLeave: () => setStatus('idle'),
+      onDrop: () => setStatus('idle'),
     })
-  }, [])
+  }, [location, pieces])
 
   return (
     <div
@@ -90,7 +138,8 @@ function Square({ location, children }: SquareProps) {
       className={cn(
         'size-full bg-base-100 flex items-center justify-center',
         isDark && 'bg-base-300',
-        isDraggedOver && 'bg-primary-content',
+        status === 'validMove' && 'bg-success',
+        status === 'invalidMove' && 'bg-error',
       )}
     >
       {children}
@@ -102,13 +151,11 @@ function renderSquares(pieces: PieceRecord[]) {
   const squares = []
   for (let i = 0; i < 8; i++) {
     for (let j = 0; j < 8; j++) {
-      const squaredCoord: Coord = [i, j]
-      const piece = pieces.find((p) => isEqualCoord(p.location, squaredCoord))
-      const isDark = (i + j) % 2 === 1
+      const piece = pieces.find((p) => isEqualCoord(p.location, [i, j]))
 
       squares.push(
-        <Square location={squaredCoord} key={`${i}-${j}`}>
-          {piece && pieceLookup[piece.type]()}
+        <Square location={[i, j]} key={`${i}-${j}`} pieces={pieces}>
+          {piece && pieceLookup[piece.type](piece.location)}
         </Square>,
       )
     }
