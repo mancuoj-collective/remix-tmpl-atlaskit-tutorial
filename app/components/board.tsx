@@ -1,5 +1,9 @@
 import { cn } from '@/lib/utils'
-import { draggable, dropTargetForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter'
+import {
+  draggable,
+  dropTargetForElements,
+  monitorForElements,
+} from '@atlaskit/pragmatic-drag-and-drop/element/adapter'
 import { type ReactElement, type ReactNode, useEffect, useRef, useState } from 'react'
 import invariant from 'tiny-invariant'
 
@@ -110,6 +114,7 @@ function Square({ pieces, location, children }: SquareProps) {
 
     return dropTargetForElements({
       element: el,
+      getData: () => ({ location }),
       canDrop: ({ source }) => {
         if (!isCoord(source.data.location)) {
           return false
@@ -164,10 +169,39 @@ function renderSquares(pieces: PieceRecord[]) {
 }
 
 export function ChessBoard() {
-  const pieces: PieceRecord[] = [
+  const [pieces, setPieces] = useState<PieceRecord[]>([
     { type: 'king', location: [3, 2] },
     { type: 'pawn', location: [1, 6] },
-  ]
+  ])
+
+  useEffect(() => {
+    return monitorForElements({
+      onDrop: ({ source, location }) => {
+        const destination = location.current.dropTargets[0]
+        if (!destination) {
+          return
+        }
+
+        const destinationLocation = destination.data.location
+        const sourceLocation = source.data.location
+        const pieceType = source.data.pieceType
+
+        if (!isCoord(destinationLocation) || !isCoord(sourceLocation) || !isPieceType(pieceType)) {
+          return
+        }
+
+        const piece = pieces.find((p) => isEqualCoord(p.location, sourceLocation))
+        const restOfPieces = pieces.filter((p) => p !== piece)
+
+        if (
+          canMove(sourceLocation, destinationLocation, pieceType, pieces) &&
+          piece !== undefined
+        ) {
+          setPieces([{ type: pieceType, location: destinationLocation }, ...restOfPieces])
+        }
+      },
+    })
+  }, [pieces])
 
   return (
     <div className="grid grid-cols-8 grid-rows-8 size-[500px] border border-base-300">

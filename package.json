@@ -10,8 +10,6 @@
     "check": "biome check --write ."
   },
   "dependencies": {
-    "@atlaskit/app-provider": "^2.1.0",
-    "@atlaskit/css-reset": "^7.2.0",
     "@atlaskit/pragmatic-drag-and-drop": "^1.6.0",
     "@react-router/node": "^7.5.2",
     "@react-router/serve": "^7.5.2",
