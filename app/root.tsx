@@ -4,6 +4,10 @@ import { TwScreenIndicator } from '@/components/tw-screen-indicator'
 import type { Route } from './+types/root'
 import '@/app.css'
 
+export function meta({}: Route.MetaArgs) {
+  return [{ title: 'DnD' }]
+}
+
 export const links: Route.LinksFunction = () => [
   { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
 ]
