@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils'
-import { draggable } from '@atlaskit/pragmatic-drag-and-drop/element/adapter'
-import { type ReactElement, useEffect, useRef, useState } from 'react'
+import { draggable, dropTargetForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter'
+import { type ReactElement, type ReactNode, useEffect, useRef, useState } from 'react'
 import invariant from 'tiny-invariant'
 
 type PieceProps = {
@@ -62,6 +62,42 @@ function isEqualCoord(c1: Coord, c2: Coord) {
   return c1[0] === c2[0] && c1[1] === c2[1]
 }
 
+type SquareProps = {
+  location: Coord
+  children: ReactNode
+}
+
+function Square({ location, children }: SquareProps) {
+  const ref = useRef(null)
+  const [isDraggedOver, setIsDraggedOver] = useState(false)
+  const isDark = (location[0] + location[1]) % 2 === 1
+
+  useEffect(() => {
+    const el = ref.current
+    invariant(el, 'element is not found')
+
+    return dropTargetForElements({
+      element: el,
+      onDragEnter: () => setIsDraggedOver(true),
+      onDragLeave: () => setIsDraggedOver(false),
+      onDrop: () => setIsDraggedOver(false),
+    })
+  }, [])
+
+  return (
+    <div
+      ref={ref}
+      className={cn(
+        'size-full bg-base-100 flex items-center justify-center',
+        isDark && 'bg-base-300',
+        isDraggedOver && 'bg-primary-content',
+      )}
+    >
+      {children}
+    </div>
+  )
+}
+
 function renderSquares(pieces: PieceRecord[]) {
   const squares = []
   for (let i = 0; i < 8; i++) {
@@ -71,15 +107,9 @@ function renderSquares(pieces: PieceRecord[]) {
       const isDark = (i + j) % 2 === 1
 
       squares.push(
-        <div
-          key={`${i}-${j}`}
-          className={cn(
-            'size-full bg-base-100 flex items-center justify-center',
-            isDark && 'bg-base-300',
-          )}
-        >
+        <Square location={squaredCoord} key={`${i}-${j}`}>
           {piece && pieceLookup[piece.type]()}
-        </div>,
+        </Square>,
       )
     }
   }
