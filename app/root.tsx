@@ -31,6 +31,14 @@ export default function App() {
   return <Outlet />
 }
 
+export function HydrateFallback() {
+  return (
+    <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-5">
+      <div className="loading loading-bars loading-xl" />
+    </div>
+  )
+}
+
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   let message = 'Oops!'
   let details = 'An unexpected error occurred.'
