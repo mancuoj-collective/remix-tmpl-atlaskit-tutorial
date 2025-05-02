@@ -16,9 +16,7 @@ export default function SidebarLayout() {
           <li key={label}>
             <NavLink
               to={to}
-              className={({ isActive }) =>
-                cn(isActive ? 'bg-base-100' : '')
-              }
+              className={({ isActive }) => cn(isActive ? 'bg-base-100' : '')}
               viewTransition
             >
               {icon}

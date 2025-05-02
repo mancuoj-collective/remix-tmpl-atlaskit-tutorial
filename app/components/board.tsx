@@ -47,7 +47,6 @@ function Piece({ location, pieceType, image, alt }: PieceProps) {
         'size-10 shadow p-2 rounded bg-base-100 hover:bg-base-200',
         isDragging && 'opacity-50',
       )}
-      draggable={false}
     />
   )
 }
