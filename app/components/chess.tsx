@@ -167,7 +167,7 @@ function renderSquares(pieces: PieceRecord[]) {
   return squares
 }
 
-export function ChessBoard() {
+export function Chess() {
   const [pieces, setPieces] = useState<PieceRecord[]>([
     { type: 'king', location: [3, 2] },
     { type: 'pawn', location: [1, 6] },

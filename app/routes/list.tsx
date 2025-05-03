@@ -1,3 +1,5 @@
-export default function List() {
-  return <div>List</div>
+import { List } from '@/components/list'
+
+export default function ListPage() {
+  return <List />
 }

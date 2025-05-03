@@ -1,6 +1,5 @@
-import { ChessBoard } from '@/components/board'
-import type { Route } from './+types/home'
+import { Chess } from '@/components/chess'
 
-export default function Home() {
-  return <ChessBoard />
+export default function HomePage() {
+  return <Chess />
 }
