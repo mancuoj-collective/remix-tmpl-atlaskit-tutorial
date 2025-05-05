@@ -4,8 +4,11 @@ import {
   dropTargetForElements,
   monitorForElements,
 } from '@atlaskit/pragmatic-drag-and-drop/element/adapter'
+import { pointerOutsideOfPreview } from '@atlaskit/pragmatic-drag-and-drop/element/pointer-outside-of-preview'
+import { setCustomNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/element/set-custom-native-drag-preview'
 import { GripVerticalIcon } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import invariant from 'tiny-invariant'
 
 type Task = {
@@ -45,7 +48,7 @@ function Status({ status }: { status: TaskStatus }) {
 
 type TaskState =
   | { type: 'idle' }
-  | { type: 'preview' }
+  | { type: 'preview'; container: HTMLElement }
   | { type: 'isDragging' }
   | { type: 'isDraggingOver' }
 
@@ -59,30 +62,48 @@ function Task({ task }: { task: Task }) {
 
     return draggable({
       element,
+      onGenerateDragPreview: ({ nativeSetDragImage }) => {
+        setCustomNativeDragPreview({
+          nativeSetDragImage,
+          getOffset: pointerOutsideOfPreview({ x: '16px', y: '8px'}),
+          render: ({ container }) => {
+            setState({ type: 'preview', container })
+          },
+        })
+      },
       onDragStart: () => setState({ type: 'isDragging' }),
       onDrop: () => setState({ type: 'idle' }),
     })
   })
 
   return (
-    <div
-      ref={ref}
-      className={cn(
-        'flex items-center text-sm bg-base-200 border border-base-300 rounded p-2 pl-0 hover:bg-base-300 hover:cursor-grab',
-        {
-          'opacity-50': state.type === 'isDragging',
-        },
-      )}
-    >
-      <div className="flex justify-center w-6 shrink-0">
-        <GripVerticalIcon size={12} />
+    <>
+      <div className="relative">
+        <div
+          ref={ref}
+          className={cn(
+            'flex items-center text-sm bg-base-200 border border-base-300 rounded p-2 pl-0 hover:bg-base-300 hover:cursor-grab',
+            {
+              'opacity-50': state.type === 'isDragging',
+            },
+          )}
+        >
+          <div className="flex justify-center w-6 shrink-0">
+            <GripVerticalIcon size={12} />
+          </div>
+          <span className="truncate grow shrink">{task.content}</span>
+          <div className="flex justify-end w-[100px] shrink-0">
+            <Status status={task.status} />
+          </div>
+        </div>
       </div>
-      <span className="truncate grow shrink">{task.content}</span>
-      <div className="flex justify-end w-[100px] shrink-0">
-        <Status status={task.status} />
-      </div>
-    </div>
+      {state.type === 'preview' ? createPortal(<DragPreview task={task} />, state.container) : null}
+    </>
   )
+}
+
+function DragPreview({ task }: { task: Task }) {
+  return <div className="border-solid rounded p-2 bg-base-100 text-sm">{task.content}</div>;
 }
 
 export function List() {
