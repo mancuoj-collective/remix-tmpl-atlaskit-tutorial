@@ -1,5 +1,12 @@
+import { cn } from '@/lib/utils'
+import {
+  draggable,
+  dropTargetForElements,
+  monitorForElements,
+} from '@atlaskit/pragmatic-drag-and-drop/element/adapter'
 import { GripVerticalIcon } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import invariant from 'tiny-invariant'
 
 type Task = {
   id: string
@@ -30,15 +37,43 @@ function Status({ status }: { status: TaskStatus }) {
   }
 
   return (
-      <div className={`badge badge-sm badge-soft uppercase ${statusMap[status].color}`}>
-        {statusMap[status].label}
-      </div>
+    <div className={`badge badge-sm badge-soft uppercase ${statusMap[status].color}`}>
+      {statusMap[status].label}
+    </div>
   )
 }
 
+type TaskState =
+  | { type: 'idle' }
+  | { type: 'preview' }
+  | { type: 'isDragging' }
+  | { type: 'isDraggingOver' }
+
 function Task({ task }: { task: Task }) {
+  const ref = useRef<HTMLDivElement | null>(null)
+  const [state, setState] = useState<TaskState>({ type: 'idle' })
+
+  useEffect(() => {
+    const element = ref.current
+    invariant(element, 'el is required')
+
+    return draggable({
+      element,
+      onDragStart: () => setState({ type: 'isDragging' }),
+      onDrop: () => setState({ type: 'idle' }),
+    })
+  })
+
   return (
-    <div className="flex items-center text-sm bg-base-200 border border-base-300 rounded p-2 pl-0 hover:bg-base-300 hover:cursor-grab">
+    <div
+      ref={ref}
+      className={cn(
+        'flex items-center text-sm bg-base-200 border border-base-300 rounded p-2 pl-0 hover:bg-base-300 hover:cursor-grab',
+        {
+          'opacity-50': state.type === 'isDragging',
+        },
+      )}
+    >
       <div className="flex justify-center w-6 shrink-0">
         <GripVerticalIcon size={12} />
       </div>
