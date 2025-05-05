@@ -1,16 +1,22 @@
 import { cn } from '@/lib/utils'
+import { triggerPostMoveFlash } from '@atlaskit/pragmatic-drag-and-drop-flourish/trigger-post-move-flash'
 import {
   type Edge,
   attachClosestEdge,
   extractClosestEdge,
 } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge'
+import { reorderWithEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/util/reorder-with-edge'
 import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine'
-import { draggable, dropTargetForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter'
+import {
+  draggable,
+  dropTargetForElements,
+  monitorForElements,
+} from '@atlaskit/pragmatic-drag-and-drop/element/adapter'
 import { pointerOutsideOfPreview } from '@atlaskit/pragmatic-drag-and-drop/element/pointer-outside-of-preview'
 import { setCustomNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/element/set-custom-native-drag-preview'
 import { GripVerticalIcon } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-import { createPortal } from 'react-dom'
+import { createPortal, flushSync } from 'react-dom'
 import invariant from 'tiny-invariant'
 
 type TaskStatus = 'todo' | 'inProgress' | 'done'
@@ -136,8 +142,9 @@ function Task({ task }: { task: Task }) {
       <div className="relative">
         <div
           ref={ref}
+          data-task-id={task.id}
           className={cn(
-            'flex items-center text-sm bg-base-200 border border-base-300 rounded p-2 pl-0 hover:bg-base-300 hover:cursor-grab',
+            'flex items-center text-sm bg-base-100 border border-base-300 rounded p-2 pl-0 hover:bg-base-200 hover:cursor-grab',
             {
               'opacity-50': state.type === 'isDragging',
             },
@@ -169,6 +176,43 @@ function DragPreview({ task }: { task: Task }) {
 
 export function List() {
   const [tasks, setTasks] = useState(() => getTasks())
+
+  useEffect(() => {
+    return monitorForElements({
+      canMonitor: ({ source }) => isTaskData(source.data),
+      onDrop: ({ location, source }) => {
+        const target = location.current.dropTargets[0]
+        if (!target) return
+
+        const sourceData = source.data
+        const targetData = target.data
+        if (!isTaskData(sourceData) || !isTaskData(targetData)) return
+
+        const indexOfSource = tasks.findIndex((task) => task.id === sourceData.taskId)
+        const indexOfTarget = tasks.findIndex((task) => task.id === targetData.taskId)
+        if (indexOfSource < 0 || indexOfTarget < 0) return
+
+        const closestEdgeOfTarget = extractClosestEdge(targetData)
+
+        flushSync(() => {
+          setTasks(
+            reorderWithEdge({
+              list: tasks,
+              startIndex: indexOfSource,
+              indexOfTarget,
+              closestEdgeOfTarget,
+              axis: 'vertical',
+            }),
+          )
+        })
+
+        const element = document.querySelector(`[data-task-id="${sourceData.taskId}"]`)
+        if (element instanceof HTMLElement) {
+          triggerPostMoveFlash(element)
+        }
+      },
+    })
+  })
 
   return (
     <div className="flex flex-col gap-2 border border-base-300 rounded p-3 w-[500px]">
