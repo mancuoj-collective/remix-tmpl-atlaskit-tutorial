@@ -1,9 +1,11 @@
 import { cn } from '@/lib/utils'
 import {
-  draggable,
-  dropTargetForElements,
-  monitorForElements,
-} from '@atlaskit/pragmatic-drag-and-drop/element/adapter'
+  type Edge,
+  attachClosestEdge,
+  extractClosestEdge,
+} from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge'
+import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine'
+import { draggable, dropTargetForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter'
 import { pointerOutsideOfPreview } from '@atlaskit/pragmatic-drag-and-drop/element/pointer-outside-of-preview'
 import { setCustomNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/element/set-custom-native-drag-preview'
 import { GripVerticalIcon } from 'lucide-react'
@@ -11,24 +13,42 @@ import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import invariant from 'tiny-invariant'
 
+type TaskStatus = 'todo' | 'inProgress' | 'done'
+
 type Task = {
   id: string
   content: string
   status: TaskStatus
 }
 
-type TaskStatus = 'todo' | 'inProgress' | 'done'
+const taskDataKey = Symbol('task')
+
+type TaskData = {
+  [taskDataKey]: true
+  taskId: Task['id']
+}
+
+function getTaskData(task: Task): TaskData {
+  return {
+    [taskDataKey]: true,
+    taskId: task.id,
+  }
+}
+
+function isTaskData(data: Record<string | symbol, unknown>): data is TaskData {
+  return data[taskDataKey] === true
+}
 
 function getTasks(): Task[] {
   return [
-    { id: 'task-0', content: 'Organize a team-building event', status: 'todo' },
-    { id: 'task-1', content: 'Create and maintain office inventory', status: 'inProgress' },
-    { id: 'task-2', content: 'Update company website content', status: 'done' },
-    { id: 'task-3', content: 'Plan and execute marketing campaigns', status: 'todo' },
-    { id: 'task-4', content: 'Coordinate employee training sessions', status: 'done' },
-    { id: 'task-5', content: 'Manage facility maintenance', status: 'done' },
-    { id: 'task-6', content: 'Organize customer feedback surveys', status: 'todo' },
-    { id: 'task-7', content: 'Coordinate travel arrangements', status: 'inProgress' },
+    { id: 'task-0', content: 'AAA', status: 'todo' },
+    { id: 'task-1', content: 'BBB', status: 'inProgress' },
+    { id: 'task-2', content: 'CCC', status: 'done' },
+    { id: 'task-3', content: 'DDD', status: 'todo' },
+    { id: 'task-4', content: 'EEE', status: 'done' },
+    { id: 'task-5', content: 'FFF', status: 'done' },
+    { id: 'task-6', content: 'GGG', status: 'todo' },
+    { id: 'task-7', content: 'HHH', status: 'inProgress' },
   ]
 }
 
@@ -40,8 +60,10 @@ function Status({ status }: { status: TaskStatus }) {
   }
 
   return (
-    <div className={`badge badge-sm badge-soft uppercase ${statusMap[status].color}`}>
-      {statusMap[status].label}
+    <div className="flex justify-end w-[100px] shrink-0">
+      <div className={`badge badge-sm badge-soft uppercase ${statusMap[status].color}`}>
+        {statusMap[status].label}
+      </div>
     </div>
   )
 }
@@ -50,7 +72,7 @@ type TaskState =
   | { type: 'idle' }
   | { type: 'preview'; container: HTMLElement }
   | { type: 'isDragging' }
-  | { type: 'isDraggingOver' }
+  | { type: 'isDraggingOver'; closestEdge: Edge | null }
 
 function Task({ task }: { task: Task }) {
   const ref = useRef<HTMLDivElement | null>(null)
@@ -60,20 +82,53 @@ function Task({ task }: { task: Task }) {
     const element = ref.current
     invariant(element, 'el is required')
 
-    return draggable({
-      element,
-      onGenerateDragPreview: ({ nativeSetDragImage }) => {
-        setCustomNativeDragPreview({
-          nativeSetDragImage,
-          getOffset: pointerOutsideOfPreview({ x: '16px', y: '8px'}),
-          render: ({ container }) => {
-            setState({ type: 'preview', container })
-          },
-        })
-      },
-      onDragStart: () => setState({ type: 'isDragging' }),
-      onDrop: () => setState({ type: 'idle' }),
-    })
+    return combine(
+      draggable({
+        element,
+        getInitialData: () => getTaskData(task),
+        onGenerateDragPreview: ({ nativeSetDragImage }) => {
+          setCustomNativeDragPreview({
+            nativeSetDragImage,
+            getOffset: pointerOutsideOfPreview({ x: '16px', y: '8px' }),
+            render: ({ container }) => {
+              setState({ type: 'preview', container })
+            },
+          })
+        },
+        onDragStart: () => setState({ type: 'isDragging' }),
+        onDrop: () => setState({ type: 'idle' }),
+      }),
+      dropTargetForElements({
+        element,
+        canDrop: ({ source }) => {
+          if (source.element === element) return false
+          return isTaskData(source.data)
+        },
+        getData: ({ input }) => {
+          const data = getTaskData(task)
+          return attachClosestEdge(data, {
+            element,
+            input,
+            allowedEdges: ['top', 'bottom'],
+          })
+        },
+        getIsSticky: () => true,
+        onDragEnter: ({ self }) => {
+          const closestEdge = extractClosestEdge(self.data)
+          setState({ type: 'isDraggingOver', closestEdge })
+        },
+        onDrag: ({ self }) => {
+          const closestEdge = extractClosestEdge(self.data)
+          setState((current) => {
+            if (current.type === 'isDraggingOver' && current.closestEdge === closestEdge)
+              return current
+            return { type: 'isDraggingOver', closestEdge }
+          })
+        },
+        onDragLeave: () => setState({ type: 'idle' }),
+        onDrop: () => setState({ type: 'idle' }),
+      }),
+    )
   })
 
   return (
@@ -92,10 +147,16 @@ function Task({ task }: { task: Task }) {
             <GripVerticalIcon size={12} />
           </div>
           <span className="truncate grow shrink">{task.content}</span>
-          <div className="flex justify-end w-[100px] shrink-0">
-            <Status status={task.status} />
-          </div>
+          <Status status={task.status} />
         </div>
+        {state.type === 'isDraggingOver' && state.closestEdge ? (
+          <div
+            className={cn('absolute z-10 bg-info pointer-events-none h-1 w-full', {
+              '-top-1.5': state.closestEdge === 'top',
+              '-bottom-1.5': state.closestEdge === 'bottom',
+            })}
+          />
+        ) : null}
       </div>
       {state.type === 'preview' ? createPortal(<DragPreview task={task} />, state.container) : null}
     </>
@@ -103,7 +164,7 @@ function Task({ task }: { task: Task }) {
 }
 
 function DragPreview({ task }: { task: Task }) {
-  return <div className="border-solid rounded p-2 bg-base-100 text-sm">{task.content}</div>;
+  return <div className="border-solid rounded p-2 bg-base-100 text-sm">{task.content}</div>
 }
 
 export function List() {
