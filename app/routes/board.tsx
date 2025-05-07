@@ -1,3 +1,5 @@
-export default function Board() {
-  return <div>Board</div>
+import { Board } from '@/components/board'
+
+export default function BoardPage() {
+  return <Board />
 }

@@ -18,6 +18,7 @@ import { GripVerticalIcon } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { createPortal, flushSync } from 'react-dom'
 import invariant from 'tiny-invariant'
+import { DropIndicator } from './drop-indicator'
 
 type TaskStatus = 'todo' | 'inProgress' | 'done'
 
@@ -61,12 +62,12 @@ function getTasks(): Task[] {
 function Status({ status }: { status: TaskStatus }) {
   const statusMap = {
     todo: { label: 'TODO', color: 'badge-primary' },
-    inProgress: { label: 'In Progress', color: 'badge-info' },
+    inProgress: { label: 'In Progress', color: 'badge-warning' },
     done: { label: 'Done', color: 'badge-success' },
   }
 
   return (
-    <div className="flex justify-end w-[100px] shrink-0">
+    <div className="flex justify-end w-[150px] shrink-0">
       <div className={`badge badge-sm badge-soft uppercase ${statusMap[status].color}`}>
         {statusMap[status].label}
       </div>
@@ -157,12 +158,7 @@ function Task({ task }: { task: Task }) {
           <Status status={task.status} />
         </div>
         {state.type === 'isDraggingOver' && state.closestEdge ? (
-          <div
-            className={cn('absolute z-10 bg-info pointer-events-none h-1 w-full', {
-              '-top-1.5': state.closestEdge === 'top',
-              '-bottom-1.5': state.closestEdge === 'bottom',
-            })}
-          />
+          <DropIndicator edge={state.closestEdge} gap="8px" />
         ) : null}
       </div>
       {state.type === 'preview' ? createPortal(<DragPreview task={task} />, state.container) : null}
