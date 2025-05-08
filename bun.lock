@@ -3,7 +3,7 @@
   "workspaces": {
     "": {
       "dependencies": {
-        "@atlaskit/pragmatic-drag-and-drop": "^1.6.0",
+        "@atlaskit/pragmatic-drag-and-drop": "^1.6.1",
         "@atlaskit/pragmatic-drag-and-drop-flourish": "^2.0.2",
         "@atlaskit/pragmatic-drag-and-drop-hitbox": "^1.0.3",
         "@react-router/node": "^7.5.3",
@@ -21,11 +21,11 @@
         "@fontsource-variable/ubuntu-sans-mono": "^5.2.7",
         "@react-router/dev": "^7.5.3",
         "@tailwindcss/vite": "^4.1.5",
-        "@types/node": "^22.15.14",
+        "@types/node": "^22.15.16",
         "@types/react": "^19.1.3",
         "@types/react-dom": "^19.1.3",
         "clsx": "^2.1.1",
-        "lucide-react": "^0.507.0",
+        "lucide-react": "^0.508.0",
         "tailwind-merge": "^3.2.0",
         "tailwindcss": "^4.1.5",
         "typescript": "^5.8.3",
@@ -49,7 +49,7 @@
 
     "@atlaskit/platform-feature-flags": ["@atlaskit/platform-feature-flags@1.1.1", "", { "dependencies": { "@atlaskit/feature-gate-js-client": "^5.0.0", "@babel/runtime": "^7.0.0" } }, "sha512-YKuy3RsqCEoNALiMHVma0GGHkzZMSIBsEgZlV/2TPw65QRzOWJvKA3ZIKucmXzr3m7AUqg1XHwXvVlUuNZhUgg=="],
 
-    "@atlaskit/pragmatic-drag-and-drop": ["@atlaskit/pragmatic-drag-and-drop@1.6.0", "", { "dependencies": { "@babel/runtime": "^7.0.0", "bind-event-listener": "^3.0.0", "raf-schd": "^4.0.3" } }, "sha512-J5ZnU6h0wjda1M1BKimzt4oRKeyVsTQzlRUqlbIUjfNioWFdSnIkPogWIn9tV2B68jphL1QNuZdEkKxcJygU2w=="],
+    "@atlaskit/pragmatic-drag-and-drop": ["@atlaskit/pragmatic-drag-and-drop@1.6.1", "", { "dependencies": { "@babel/runtime": "^7.0.0", "bind-event-listener": "^3.0.0", "raf-schd": "^4.0.3" } }, "sha512-RC0E/uicBBIoCxHOLcrFf0DP9N4h6AfluSdz8yC4ttYu1Q3UPbnpBEBQGdOxdl3vcNsB06zw378Nj6eNnxbzFg=="],
 
     "@atlaskit/pragmatic-drag-and-drop-flourish": ["@atlaskit/pragmatic-drag-and-drop-flourish@2.0.2", "", { "dependencies": { "@atlaskit/motion": "^5.1.0", "@atlaskit/tokens": "^4.5.0", "@babel/runtime": "^7.0.0" } }, "sha512-BcekPRucovhxJN7K11MHOwR83nshNnEH8PeSoNkMG+aX0obTa4IOV5ChE5RE5tUFKxej5eSIF9s/ZEh6vwWhJA=="],
 
@@ -297,7 +297,7 @@
 
     "@types/estree": ["@types/estree@1.0.7", "", {}, "sha512-w28IoSUCJpidD/TGviZwwMJckNESJZXFu7NBZ5YJ4mEUnNraUn9Pm8HSZm/jDF1pDWYKspWE7oVphigUPRakIQ=="],
 
-    "@types/node": ["@types/node@22.15.14", "", { "dependencies": { "undici-types": "~6.21.0" } }, "sha512-BL1eyu/XWsFGTtDWOYULQEs4KR0qdtYfCxYAUYRoB7JP7h9ETYLgQTww6kH8Sj2C0pFGgrpM0XKv6/kbIzYJ1g=="],
+    "@types/node": ["@types/node@22.15.16", "", { "dependencies": { "undici-types": "~6.21.0" } }, "sha512-3pr+KjwpVujqWqOKT8mNR+rd09FqhBLwg+5L/4t0cNYBzm/yEiYGCxWttjaPBsLtAo+WFNoXzGJfolM1JuRXoA=="],
 
     "@types/parse-json": ["@types/parse-json@4.0.2", "", {}, "sha512-dISoDXWWQwUquiKsyZ4Ng+HX2KsPL7LyHKHQwgGFEA3IaKac4Obd+h2a/a6waisAoepJlBcx9paWqjA8/HVjCw=="],
 
@@ -525,7 +525,7 @@
 
     "lru-cache": ["lru-cache@5.1.1", "", { "dependencies": { "yallist": "^3.0.2" } }, "sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w=="],
 
-    "lucide-react": ["lucide-react@0.507.0", "", { "peerDependencies": { "react": "^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0" } }, "sha512-XfgE6gvAHwAtnbUvWiTTHx4S3VGR+cUJHEc0vrh9Ogu672I1Tue2+Cp/8JJqpytgcBHAB1FVI297W4XGNwc2dQ=="],
+    "lucide-react": ["lucide-react@0.508.0", "", { "peerDependencies": { "react": "^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0" } }, "sha512-gcP16PnexqtOFrTtv98kVsGzTfnbPekzZiQfByi2S89xfk7E/4uKE1USZqccIp58v42LqkO7MuwpCqshwSrJCg=="],
 
     "math-intrinsics": ["math-intrinsics@1.1.0", "", {}, "sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g=="],
 
@@ -750,6 +750,8 @@
     "yallist": ["yallist@3.1.1", "", {}, "sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g=="],
 
     "yaml": ["yaml@1.10.2", "", {}, "sha512-r3vXyErRCYJ7wg28yvBY5VSoAF8ZvlcW9/BwUzEtUsjvX/DKs24dIkuwjtuprwJJHsbyUbLApepYTR1BN4uHrg=="],
+
+    "@atlaskit/pragmatic-drag-and-drop-hitbox/@atlaskit/pragmatic-drag-and-drop": ["@atlaskit/pragmatic-drag-and-drop@1.6.0", "", { "dependencies": { "@babel/runtime": "^7.0.0", "bind-event-listener": "^3.0.0", "raf-schd": "^4.0.3" } }, "sha512-J5ZnU6h0wjda1M1BKimzt4oRKeyVsTQzlRUqlbIUjfNioWFdSnIkPogWIn9tV2B68jphL1QNuZdEkKxcJygU2w=="],
 
     "@babel/core/semver": ["semver@6.3.1", "", { "bin": { "semver": "bin/semver.js" } }, "sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA=="],
 
