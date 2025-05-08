@@ -61,14 +61,14 @@ function getTasks(): Task[] {
 
 function Status({ status }: { status: TaskStatus }) {
   const statusMap = {
-    todo: { label: 'TODO', color: 'badge-primary' },
-    inProgress: { label: 'In Progress', color: 'badge-warning' },
-    done: { label: 'Done', color: 'badge-success' },
+    todo: { label: 'TODO', color: 'bg-blue-100' },
+    inProgress: { label: 'In Progress', color: 'bg-yellow-100' },
+    done: { label: 'Done', color: 'bg-green-100' },
   }
 
   return (
     <div className="flex justify-end w-[150px] shrink-0">
-      <div className={`badge badge-sm badge-soft uppercase ${statusMap[status].color}`}>
+      <div className={`border border-neutral-300 rounded-md px-2 py-1 uppercase ${statusMap[status].color}`}>
         {statusMap[status].label}
       </div>
     </div>
@@ -145,7 +145,7 @@ function Task({ task }: { task: Task }) {
           ref={ref}
           data-task-id={task.id}
           className={cn(
-            'flex items-center text-sm bg-base-100 border border-base-300 rounded p-2 pl-0 hover:bg-base-200 hover:cursor-grab',
+            'flex items-center text-sm  border border-neutral-300 rounded p-2 pl-0 hover:cursor-grab',
             {
               'opacity-50': state.type === 'isDragging',
             },
@@ -158,7 +158,7 @@ function Task({ task }: { task: Task }) {
           <Status status={task.status} />
         </div>
         {state.type === 'isDraggingOver' && state.closestEdge ? (
-          <DropIndicator edge={state.closestEdge} gap="8px" />
+          <DropIndicator edge={state.closestEdge} gap="10px" />
         ) : null}
       </div>
       {state.type === 'preview' ? createPortal(<DragPreview task={task} />, state.container) : null}
@@ -167,7 +167,7 @@ function Task({ task }: { task: Task }) {
 }
 
 function DragPreview({ task }: { task: Task }) {
-  return <div className="border-solid rounded p-2 bg-base-100 text-sm">{task.content}</div>
+  return <div className="border-solid rounded p-2 bg-neutral-100 text-sm">{task.content}</div>
 }
 
 export function List() {
@@ -211,7 +211,7 @@ export function List() {
   })
 
   return (
-    <div className="flex flex-col gap-2 border border-base-300 rounded p-3 w-[500px]">
+    <div className="flex flex-col gap-2.5 border border-neutral-300 rounded p-3 w-[500px]">
       {tasks.map((task) => (
         <Task key={task.id} task={task} />
       ))}

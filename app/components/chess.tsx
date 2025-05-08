@@ -44,7 +44,7 @@ function Piece({ location, pieceType, image, alt }: PieceProps) {
       src={image}
       alt={alt}
       className={cn(
-        'size-10 shadow p-2 rounded bg-base-100 hover:bg-base-200',
+        'size-10 shadow p-2 rounded bg-neutral-100 hover:bg-neutral-200',
         isDragging && 'opacity-50',
       )}
     />
@@ -140,10 +140,10 @@ function Square({ pieces, location, children }: SquareProps) {
     <div
       ref={ref}
       className={cn(
-        'size-full bg-base-100 flex items-center justify-center',
-        isDark && 'bg-base-300',
-        status === 'validMove' && 'bg-success',
-        status === 'invalidMove' && 'bg-error',
+        'size-full bg-neutral-50 flex items-center justify-center',
+        isDark && 'bg-neutral-200',
+        status === 'validMove' && 'bg-green-200',
+        status === 'invalidMove' && 'bg-red-200',
       )}
     >
       {children}
@@ -203,7 +203,7 @@ export function Chess() {
   }, [pieces])
 
   return (
-    <div className="grid grid-cols-8 grid-rows-8 size-[500px] border border-base-300">
+    <div className="grid grid-cols-8 grid-rows-8 size-[500px] border border-neutral-300">
       {renderSquares(pieces)}
     </div>
   )
