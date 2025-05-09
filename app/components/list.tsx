@@ -1,5 +1,4 @@
 import { cn } from '@/lib/utils'
-import { triggerPostMoveFlash } from '@atlaskit/pragmatic-drag-and-drop-flourish/trigger-post-move-flash'
 import {
   type Edge,
   attachClosestEdge,
@@ -68,7 +67,9 @@ function Status({ status }: { status: TaskStatus }) {
 
   return (
     <div className="flex justify-end w-[150px] shrink-0">
-      <div className={`border border-neutral-300 rounded-md px-2 py-1 uppercase ${statusMap[status].color}`}>
+      <div
+        className={`border border-neutral-300 rounded-md px-2 py-1 uppercase ${statusMap[status].color}`}
+      >
         {statusMap[status].label}
       </div>
     </div>
@@ -204,7 +205,11 @@ export function List() {
 
         const element = document.querySelector(`[data-task-id="${sourceData.taskId}"]`)
         if (element instanceof HTMLElement) {
-          triggerPostMoveFlash(element)
+          element.animate([{ backgroundColor: 'oklch(92.2% 0 0)' }, {}], {
+            easing: 'ease-in-out',
+            duration: 1000,
+            iterations: 1,
+          })
         }
       },
     })
