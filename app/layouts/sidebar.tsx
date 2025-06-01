@@ -19,7 +19,6 @@ export default function SidebarLayout() {
               className={({ isActive }) =>
                 cn('flex items-center gap-2 text-sm p-2 rounded-md', { 'bg-neutral-200': isActive })
               }
-              viewTransition
             >
               {icon}
               {label}
